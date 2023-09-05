@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        dockerHubCredential = 'Docker_key'
+        dockerHubCredential = 'dockerhub'
     }
     tools{
         maven 'maven_3_5_0'
@@ -9,14 +9,14 @@ pipeline {
     stages{
         stage('Build Maven'){
             steps{
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/supraja-saravanan/devops-automation1.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Snega19/devops-automation.git']]])
                 sh 'mvn clean install'
             }
         }
         stage('Build docker image'){
             steps{
                 script{
-                    sh 'docker build -t supraja13/devops-integration .'
+                    sh 'docker build -t snega19/devops-automation .'
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
     steps {
         script {
             docker.withRegistry('https://registry.hub.docker.com', dockerHubCredential) {
-                sh 'docker push supraja13/devops-integration'
+                sh 'docker push snega19/devops-automation'
             }
         }
     }
@@ -33,7 +33,7 @@ pipeline {
         stage('Deploy to k8s'){
             steps{
                 script{
-                    kubernetesDeploy (configs: 'deploymentservice.yaml',kubeconfigId: 'Kubernetes_key')
+                    kubernetesDeploy (configs: 'deploymentservice.yaml',kubeconfigId: 'Kubernetes')
                 }
             }
         }
